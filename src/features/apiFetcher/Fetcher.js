@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+  FETCH_ACTION,
   fetchData,
   selectApiState,
 } from "./fetcherSlice";
@@ -11,7 +12,7 @@ export default function Fetcher() {
   const dispatch = useDispatch();
   return <div className={styles.wrapper}>
       <div className={styles.row}>
-        <button onClick={() => {dispatch(fetchData())}}>Get the data!</button>
+        <button onClick={() => {dispatch({type: FETCH_ACTION})}}>Get the data!</button>
       </div>
       <div className={styles.results}>
         <div>Is loading: {isLoading ? "true" : "false"}</div>

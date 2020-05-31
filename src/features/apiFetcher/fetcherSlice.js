@@ -1,4 +1,7 @@
 import {createSlice} from "@reduxjs/toolkit";
+import {call, delay, put, takeEvery} from "redux-saga/effects";
+
+export const FETCH_ACTION = "fetcher/fetch";
 
 function getInitialApiState() {
   return {
@@ -56,20 +59,27 @@ export const fetcherSlice = createSlice({
 
 export const {loading, received, errored} = fetcherSlice.actions;
 
-export const fetchData = () => async dispatch => {
-  dispatch(loading());
+export function* fetchData() {
+  // обрабатываем каждый экшн fetch/action
+  yield takeEvery(FETCH_ACTION, fetchingSaga);
+}
+
+export function* fetchingSaga() {
+  // поднимаем флаг loading
+  yield put(loading());
   try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/todos/1");
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const response = yield call(() => fetch("https://jsonplaceholder.typicode.com/todos/1"));
+    yield delay(1000);
     if (!response.ok) {
       throw Error(response.statusText);
     }
-    const responseData = await response.json();
-    dispatch(received(responseData));
+    const responseData = yield call(() => response.json());
+    // кладём результат в стейт
+    yield put(received(responseData));
   } catch (e) {
-    dispatch(errored(e.message));
+    yield put(errored(e.message));
   }
-};
+}
 
 export const selectApiState = state => state.fetcher.apiState;
 
