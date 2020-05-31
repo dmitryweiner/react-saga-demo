@@ -1,5 +1,5 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {call, delay, put, takeEvery} from "redux-saga/effects";
+import {call, delay, put, takeEvery, select} from "redux-saga/effects";
 
 export const FETCH_ACTION = "fetcher/fetch";
 
@@ -42,6 +42,7 @@ function getLoadingApiState() {
 export const fetcherSlice = createSlice({
   name: 'fetcher',
   initialState: {
+    userId: 1,
     apiState: getInitialApiState()
   },
   reducers: {
@@ -53,11 +54,14 @@ export const fetcherSlice = createSlice({
     },
     errored: (state, action) => {
       state.apiState = getErroredApiState(action.payload);
+    },
+    changeUserId: (state, action) => {
+      state.userId = action.payload;
     }
   },
 });
 
-export const {loading, received, errored} = fetcherSlice.actions;
+export const {loading, received, errored, changeUserId} = fetcherSlice.actions;
 
 export function* fetchData() {
   // обрабатываем каждый экшн fetch/action
@@ -68,7 +72,8 @@ export function* fetchingSaga() {
   // поднимаем флаг loading
   yield put(loading());
   try {
-    const response = yield call(fetch, "https://jsonplaceholder.typicode.com/todos/1");
+    const userId = yield select(selectUserId);
+    const response = yield call(fetch, `https://jsonplaceholder.typicode.com/users/${userId}`);
     yield delay(1000);
     if (!response.ok) {
       throw Error(response.statusText);
@@ -82,5 +87,6 @@ export function* fetchingSaga() {
 }
 
 export const selectApiState = state => state.fetcher.apiState;
+export const selectUserId = state => state.fetcher.userId;
 
 export default fetcherSlice.reducer;
