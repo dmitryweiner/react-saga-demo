@@ -68,7 +68,7 @@ export function* fetchingSaga() {
   // поднимаем флаг loading
   yield put(loading());
   try {
-п    const response = yield call(fetch, "https://jsonplaceholder.typicode.com/todos/1");
+    const response = yield call(fetch, "https://jsonplaceholder.typicode.com/todos/1");
     yield delay(1000);
     if (!response.ok) {
       throw Error(response.statusText);
